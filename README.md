@@ -1,0 +1,3 @@
+# Blockal
+This is an block coding language...
+Say hi to blockal an kinda block coding language use it for simple tasks as because it is in beta if you want to see all updates look at https://forum.snap.berkeley.edu/t/blockal-updates-and-mods/15464
