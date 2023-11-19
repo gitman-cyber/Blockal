@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.min.js"></script>
+  <style>
+    canvas {
+      border: 1px solid #ccc;
+    }
+    .category-bar {
+      cursor: pointer;
+      padding: 5px;
+      background-color: #eee;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    .blocks-container {
+      display: none;
+      margin-top: 5px;
+    }
+    .block {
+      cursor: pointer;
+      padding: 5px;
+      background-color: #ddd;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="motionCategory" class="category-bar" onclick="toggleBlocks('motion')">Motion</div>
+  <div class="blocks-container" id="motionBlocks">
+    <div class="block" onclick="addBlock('move', '10', 'sprite')">Move <input type="number" id="moveInput" value="10"></div>
+    <div class="block" onclick="addBlock('randomMove', '', 'sprite')">Random Move</div>
+  </div>
+
+  <div id="penCategory" class="category-bar" onclick="toggleBlocks('pen')">Pen</div>
+  <div class="blocks-container" id="penBlocks">
+    <div class="block" onclick="addBlock('penUp', '', 'sprite')">Pen Up</div>
+    <div class="block" onclick="addBlock('penDown', '', 'sprite')">Pen Down</div>
+    <div class="block" onclick="addBlock('setColor', '', 'pen')">Set Pen Color <input type="text" id="setColorInput" placeholder="Color"></div>
+  </div>
+
+  <div id="looksCategory" class="category-bar" onclick="toggleBlocks('looks')">Looks</div>
+  <div class="blocks-container" id="looksBlocks">
+    <div class="block" onclick="addBlock('setText', 'Hello, %s', 'sprite')">Set Text</div>
+    <div class="block" onclick="addBlock('changeColor', '', 'sprite')">Change Color <input type="text" id="changeColorInput" placeholder="Color"></div>
+  </div>
+
+  <div id="backgroundCategory" class="category-bar" onclick="toggleBlocks('background')">Background</div>
+  <div class="blocks-container" id="backgroundBlocks">
+    <div class="block" onclick="addBlock('setBackground', '', 'background')">Set Background <input type="text" id="setBackgroundInput" placeholder="Color"></div>
+  </div>
+
+  <div id="scriptsTab" class="category-bar" onclick="toggleBlocks('scripts')">Scripts</div>
+  <div class="blocks-container" id="scriptsBlocks"></div>
+
+  <div id="variablesCategory" class="category-bar" onclick="toggleBlocks('variables')">Variables</div>
+  <div class="blocks-container" id="variablesBlocks">
+    <div class="block" onclick="addBlock('setVariable', 'myVar', 'variable')">Set Variable @myVar to <input type="text" id="setVarInput" value=""></div>
+  </div>
+
+  <div id="jsonCategory" class="category-bar" onclick="toggleBlocks('json')">JSON</div>
+  <div class="blocks-container" id="jsonBlocks">
+    <div class="block" onclick="addBlock('parseJSON', '{"key": "value"}', 'json')">Parse JSON</div>
+  </div>
+
+  <div id="mathCategory" class="category-bar" onclick="toggleBlocks('math')">Math</div>
+  <div class="blocks-container" id="mathBlocks">
+    <div class="block" onclick="addBlock('add', '5', 'sprite')">Add 5 to <input type="text" id="addInput" value="@myVar"></div>
+  </div>
+
+  <script>
+    let x, y;
+    let offsetX, offsetY;
+    let scriptBlocks = [];
+    let sprite;
+    let stage;
+    let penIsDown = false;
+    let penColor = 'black';
+    let myVar = 0;
+
+    // Modified Block class with specifications
+    Block = function (id, type, spec, target) {
+      this.id = id;
+      this.type = type;
+      this.spec = spec;
+      this.target = target;
+      this.execute = function () {
+        if (this.type === 'move' && this.target === 'sprite') {
+          const inputValue = document.getElementById('moveInput').value;
+          x = constrain(x + parseFloat(inputValue), 10, stage.width - sprite.width + 10);
+        } else if (this.type === 'randomMove' && this.target === 'sprite') {
+          x = constrain(x + random(-5, 5), 10, stage.width - sprite.width + 10);
+          y = constrain(y + random(-5, 5), 10, stage.height - sprite.height + 10);
+        } else if (this.type === 'setText' && this.target === 'sprite') {
+          fill('white');
+          text(this.spec, x + 5, y + 15);
+        } else if (this.type === 'changeColor' && this.target === 'sprite') {
+          const colorValue = document.getElementById('changeColorInput').value;
+          fill(colorValue || 'white');
+        } else if (this.type === 'setBackground' && this.target === 'background') {
+          const colorValue = document.getElementById('setBackgroundInput').value;
+          stage.background(colorValue || 'white');
+        } else if (this.type === 'penUp' && this.target === 'sprite') {
+          penIsDown = false;
+        } else if (this.type === 'penDown' && this.target === 'sprite') {
+          penIsDown = true;
+        } else if (this.type === 'setColor' && this.target === 'pen') {
+          const colorValue = document.getElementById('setColorInput').value;
+          penColor = colorValue || 'black';
+        } else if (this.type === 'setVariable' && this.target === 'variable') {
+          myVar = parseFloat(this.spec);
+        } else if (this.type === 'parseJSON' && this.target === 'json') {
+          const parsedData = JSON.parse(this.spec);
+          console.log(parsedData);
+        } else if (this.type === 'add' && this.target === 'sprite') {
+          const inputValue = document.getElementById('addInput').value;
+          myVar += parseFloat(inputValue);
+        }
+      };
+    };
+
+    function preload() {
+      sprite = loadImage("turtle.png");
+    }
+
+    function setup() {
+      createCanvas(600, 400); // Adjusted canvas size
+      x = width / 2;
+      y = height / 2;
+      offsetX = 0;
+      offsetY = 0;
+
+      // Resize sprite to fit the stage
+      sprite.resize(50, 50);
+
+      // Create Green Flag button
+      greenFlagButton = createButton("Green flag");
+      greenFlagButton.position(10, height + 10);
+      greenFlagButton.mousePressed(greenFlagPressed);
+
+      // Create Stop button
+      stopButton = createButton("Stop");
+      stopButton.position(100, height + 10);
+      stopButton.mousePressed(stopPressed);
+
+      // Initialize stage
+      stage = createGraphics(180, 120); // Adjusted stage size
+      stage.background("white");
+    }
+
+    function draw() {
+      clear();
+      background(220);
+
+      // Draw the stage
+      image(stage, 10, 10);
+
+      // Draw the sprite on the stage
+      image(sprite, x, y);
+
+      // Draw the blocks in the scripts tab
+      for (const scriptBlock of scriptBlocks) {
+        scriptBlock.execute();
+      }
+
+      // Draw pen if down
+      if (penIsDown) {
+        stroke(penColor);
+        strokeWeight(2);
+        line(x + sprite.width / 2, y + sprite.height / 2, pmouseX, pmouseY);
+      }
+    }
+
+    function mousePressed() {
+      if (mouseX > x && mouseX < x + sprite.width && mouseY > y && mouseY < y + sprite.height) {
+        offsetX = x - mouseX;
+        offsetY = y - mouseY;
+      }
+    }
+
+    function mouseDragged() {
+      x = constrain(mouseX + offsetX, 10, stage.width - sprite.width + 10);
+      y = constrain(mouseY + offsetY, 10, stage.height - sprite.height + 10);
+    }
+
+    function mouseReleased() {
+      // Code to execute when the mouse is released
+    }
+
+    function greenFlagPressed() {
+      // Code to execute when the Green Flag is pressed
+      for (const scriptBlock of scriptBlocks) {
+        scriptBlock.execute();
+      }
+    }
+
+    function stopPressed() {
+      // Code to execute when the Stop button is pressed
+      background(255); // Example: Reset canvas background to white
+    }
+
+    function toggleBlocks(category) {
+      const categoryBlocks = document.getElementById(category + 'Blocks');
+      const otherCategories = document.querySelectorAll('.blocks-container:not(#' + category + 'Blocks)');
+
+      for (const otherCategory of otherCategories) {
+        otherCategory.style.display = 'none';
+      }
+
+      categoryBlocks.style.display = categoryBlocks.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function addBlock(type, spec, target) {
+      const container = document.getElementById('scriptsBlocks');
+      const blockDiv = document.createElement('div');
+      const blockId = 'block_' + scriptBlocks.length;
+      blockDiv.id = blockId;
+      blockDiv.classList.add('block');
+      blockDiv.innerText = type + '(' + (spec ? "'" + spec + "'" : '') + ')';
+      blockDiv.onclick = function () {
+        deleteBlock(blockId);
+      };
+      container.appendChild(blockDiv);
+      scriptBlocks.push(new Block(blockId, type, spec, target));
+    }
+
+    function deleteBlock(blockId) {
+      const blockIndex = scriptBlocks.findIndex((block) => block.id === blockId);
+      if (blockIndex !== -1) {
+        scriptBlocks.splice(blockIndex, 1);
+        document.getElementById(blockId).remove();
+      }
+    }
+  </script>
+</body>
+</html>
