@@ -1,13 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.min.js"></script>
+<html lang="en"><head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.min.js"></script>
+
   <style>
-    canvas {
-      border: 1px solid #ccc;
-    }
     .category-bar {
       cursor: pointer;
       padding: 5px;
@@ -15,70 +12,95 @@
       margin-bottom: 5px;
       text-align: center;
     }
-    .blocks-container {
-      display: none;
-      margin-top: 5px;
-    }
+
     .block {
       cursor: pointer;
-      padding: 5px;
       background-color: #ddd;
       margin-bottom: 5px;
     }
+
+    .sprite-bar {
+      display: flex;
+      overflow-x: auto;
+      margin-bottom: 10px;
+    }
+
+    .sprite {
+      width: 50px;
+      height: 50px;
+    }
+
+    #directionContainer {
+      position: absolute;
+      bottom: 0;
+      width: 180px;
+      padding: 10px;
+      background-color: #eee;
+    }
   </style>
-</head>
-<body>
-  <div id="motionCategory" class="category-bar" onclick="toggleBlocks('motion')">Motion</div>
-  <div class="blocks-container" id="motionBlocks">
-    <div class="block" onclick="addBlock('move', '10', 'sprite')">Move <input type="number" id="moveInput" value="10"></div>
-    <div class="block" onclick="addBlock('randomMove', '', 'sprite')">Random Move</div>
-  </div>
 
-  <div id="penCategory" class="category-bar" onclick="toggleBlocks('pen')">Pen</div>
-  <div class="blocks-container" id="penBlocks">
-    <div class="block" onclick="addBlock('penUp', '', 'sprite')">Pen Up</div>
-    <div class="block" onclick="addBlock('penDown', '', 'sprite')">Pen Down</div>
-    <div class="block" onclick="addBlock('setColor', '', 'pen')">Set Pen Color <input type="text" id="setColorInput" placeholder="Color"></div>
-  </div>
+  </head>
+  <body>
+      <div id="motionCategory" class="category-bar" onclick="toggleBlocks('motion')">Motion</div>
+      <div class="blocks-container" id="motionBlocks">
+        <div class="block" onclick="addBlock('move', '10', 'sprite')">Move <input type="number" id="moveInput" value="10"></div>
+        <div class="block" onclick="addBlock('randomMove', '', 'sprite')">Random Move</div>
+      </div>
 
-  <div id="looksCategory" class="category-bar" onclick="toggleBlocks('looks')">Looks</div>
-  <div class="blocks-container" id="looksBlocks">
-    <div class="block" onclick="addBlock('setText', 'Hello, %s', 'sprite')">Set Text</div>
-    <div class="block" onclick="addBlock('changeColor', '', 'sprite')">Change Color <input type="text" id="changeColorInput" placeholder="Color"></div>
-  </div>
+      <div id="penCategory" class="category-bar" onclick="toggleBlocks('pen')" style="">Pen</div>
+      <div class="blocks-container" id="penBlocks">
+        <div class="block" onclick="addBlock('penUp', '', 'sprite')">Pen Up</div>
+        <div class="block" onclick="addBlock('penDown', '', 'sprite')">Pen Down</div>
+        <div class="block" onclick="addBlock('setColor', '', 'pen')">Set Pen Color <input type="text" id="setColorInput" placeholder="Color"></div>
+      </div>
 
-  <div id="backgroundCategory" class="category-bar" onclick="toggleBlocks('background')">Background</div>
-  <div class="blocks-container" id="backgroundBlocks">
-    <div class="block" onclick="addBlock('setBackground', '', 'background')">Set Background <input type="text" id="setBackgroundInput" placeholder="Color"></div>
-  </div>
+      <div id="looksCategory" class="category-bar" onclick="toggleBlocks('looks')" style="">Looks</div>
+      <div class="blocks-container" id="looksBlocks">
+        <div class="block" onclick="addBlock('setText', 'Hello, %s', 'sprite')">Set Text</div>
+        <div class="block" onclick="addBlock('changeColor', '', 'sprite')">Change Color <input type="text" id="changeColorInput" placeholder="Color"></div>
+      </div>
 
-  <div id="scriptsTab" class="category-bar" onclick="toggleBlocks('scripts')">Scripts</div>
-  <div class="blocks-container" id="scriptsBlocks"></div>
+      <div id="backgroundCategory" class="category-bar" onclick="toggleBlocks('background')" style="">Background</div>
+      <div class="blocks-container" id="backgroundBlocks">
+        <div class="block" onclick="addBlock('setBackground', '', 'background')">Set Background <input type="text" id="setBackgroundInput" placeholder="Color"></div>
+      </div>
 
-  <div id="variablesCategory" class="category-bar" onclick="toggleBlocks('variables')">Variables</div>
-  <div class="blocks-container" id="variablesBlocks">
-    <div class="block" onclick="addBlock('setVariable', 'myVar', 'variable')">Set Variable @myVar to <input type="text" id="setVarInput" value=""></div>
-  </div>
+      <div id="scriptsTab" class="category-bar" onclick="toggleBlocks('scripts')" style="">Scripts</div>
+      <div class="blocks-container" id="scriptsBlocks"></div>
 
-  <div id="jsonCategory" class="category-bar" onclick="toggleBlocks('json')">JSON</div>
-  <div class="blocks-container" id="jsonBlocks">
-    <div class="block" onclick="addBlock('parseJSON', '{"key": "value"}', 'json')">Parse JSON</div>
-  </div>
+      <div id="variablesCategory" class="category-bar" onclick="toggleBlocks('variables')" style="">Variables</div>
+      <div class="blocks-container" id="variablesBlocks">
+        <div class="block" onclick="addBlock('setVariable', 'myVar', 'variable')">Set Variable @myVar to <input type="text" id="setVarInput" value=""></div>
+      </div>
 
-  <div id="mathCategory" class="category-bar" onclick="toggleBlocks('math')">Math</div>
-  <div class="blocks-container" id="mathBlocks">
-    <div class="block" onclick="addBlock('add', '5', 'sprite')">Add 5 to <input type="text" id="addInput" value="@myVar"></div>
-  </div>
+      <div id="jsonCategory" class="category-bar" onclick="toggleBlocks('json')" style="">JSON</div>
+      <div class="blocks-container" id="jsonBlocks">
+        <div class="block" onclick="addBlock('parseJSON', '{"key": "value"}', 'json')">Parse JSON</div>
+      </div>
 
+      <div id="mathCategory" class="category-bar" onclick="toggleBlocks('math')" style="">Math</div>
+      <div class="blocks-container" id="mathBlocks">
+        <div class="block" onclick="addBlock('add', '5', 'sprite')">Add 5 to <input type="text" id="addInput" value="@myVar"></div>
+      </div>
+
+      <div class="sprite-bar" id="spriteBar"></div>
+
+      <div id="directionContainer">
+        <label for="directionInput">Direction:</label>
+        <input type="number" id="directionInput" placeholder="Degrees">
+      </div>
   <script>
     let x, y;
     let offsetX, offsetY;
     let scriptBlocks = [];
+    let sprites = [];
+    let currentSpriteIndex = 0;
     let sprite;
     let stage;
     let penIsDown = false;
     let penColor = 'black';
     let myVar = 0;
+    let direction = 0; // Default direction
 
     // Modified Block class with specifications
     Block = function (id, type, spec, target) {
@@ -89,13 +111,16 @@
       this.execute = function () {
         if (this.type === 'move' && this.target === 'sprite') {
           const inputValue = document.getElementById('moveInput').value;
-          x = constrain(x + parseFloat(inputValue), 10, stage.width - sprite.width + 10);
+          const vx = cos(direction) * inputValue;
+          const vy = sin(direction) * inputValue;
+          sprites[currentSpriteIndex].x = constrain(sprites[currentSpriteIndex].x + vx, 10, stage.width - sprite.width + 10);
+          sprites[currentSpriteIndex].y = constrain(sprites[currentSpriteIndex].y + vy, 10, stage.height - sprite.height + 10);
         } else if (this.type === 'randomMove' && this.target === 'sprite') {
-          x = constrain(x + random(-5, 5), 10, stage.width - sprite.width + 10);
-          y = constrain(y + random(-5, 5), 10, stage.height - sprite.height + 10);
+          sprites[currentSpriteIndex].x = constrain(sprites[currentSpriteIndex].x + random(-5, 5), 10, stage.width - sprite.width + 10);
+          sprites[currentSpriteIndex].y = constrain(sprites[currentSpriteIndex].y + random(-5, 5), 10, stage.height - sprite.height + 10);
         } else if (this.type === 'setText' && this.target === 'sprite') {
           fill('white');
-          text(this.spec, x + 5, y + 15);
+          text(this.spec, sprites[currentSpriteIndex].x + 5, sprites[currentSpriteIndex].y + 15);
         } else if (this.type === 'changeColor' && this.target === 'sprite') {
           const colorValue = document.getElementById('changeColorInput').value;
           fill(colorValue || 'white');
@@ -147,42 +172,59 @@
 
       // Initialize stage
       stage = createGraphics(180, 120); // Adjusted stage size
-      stage.background("white");
+
+      // Create initial sprite
+      createSprite('Sprite 1', 50, 50);
+
+      // Display the sprites in the sprite bar
+      displaySprites();
     }
 
     function draw() {
       clear();
       background(220);
-
+stage.background("blue")
       // Draw the stage
       image(stage, 10, 10);
 
-      // Draw the sprite on the stage
-      image(sprite, x, y);
-
-      // Draw the blocks in the scripts tab
-      for (const scriptBlock of scriptBlocks) {
-        scriptBlock.execute();
+      // Draw sprites
+      for (const currentSprite of sprites) {
+        // Draw the rotated sprite on the stage
+        push();
+        translate(currentSprite.x + currentSprite.width / 2, currentSprite.y + currentSprite.height / 2);
+        rotate(currentSprite.direction);
+        image(currentSprite.image, -currentSprite.width / 2, -currentSprite.height / 2);
+        pop();
       }
+
 
       // Draw pen if down
       if (penIsDown) {
         stroke(penColor);
-        strokeWeight(2);
-        line(x + sprite.width / 2, y + sprite.height / 2, pmouseX, pmouseY);
+        strokeWeight(100);
+        point(x + sprite.width / 2, y + sprite.height / 2, pmouseX, pmouseY);
       }
     }
 
     function mousePressed() {
-      if (mouseX > x && mouseX < x + sprite.width && mouseY > y && mouseY < y + sprite.height) {
-        offsetX = x - mouseX;
-        offsetY = y - mouseY;
+      for (let i = 0; i < sprites.length; i++) {
+        const currentSprite = sprites[i];
+        if (
+          mouseX > currentSprite.x &&
+          mouseX < currentSprite.x + currentSprite.width &&
+          mouseY > currentSprite.y &&
+          mouseY < currentSprite.y + currentSprite.height
+        ) {
+          offsetX = currentSprite.x - mouseX;
+          offsetY = currentSprite.y - mouseY;
+          currentSpriteIndex = i;
+        }
       }
     }
 
     function mouseDragged() {
-      x = constrain(mouseX + offsetX, 10, stage.width - sprite.width + 10);
-      y = constrain(mouseY + offsetY, 10, stage.height - sprite.height + 10);
+      sprites[currentSpriteIndex].x = constrain(mouseX + offsetX, 10, stage.width - sprite.width + 10);
+      sprites[currentSpriteIndex].y = constrain(mouseY + offsetY, 10, stage.height - sprite.height + 10);
     }
 
     function mouseReleased() {
@@ -233,6 +275,40 @@
         document.getElementById(blockId).remove();
       }
     }
+
+    function createSprite(name, x, y) {
+      const newSprite = {
+        name: name,
+        x: x,
+        y: y,
+        width: 50,
+        height: 50,
+        direction: 0,
+        image: sprite
+      };
+      sprites.push(newSprite);
+      currentSpriteIndex = sprites.length - 1;
+    }
+
+    function displaySprites() {
+      const spriteBar = document.getElementById('spriteBar');
+      spriteBar.innerHTML = '';
+      for (let i = 0; i < sprites.length; i++) {
+        const currentSprite = sprites[i];
+        const spriteDiv = document.createElement('div');
+        spriteDiv.classList.add('sprite');
+        spriteDiv.innerText = currentSprite.name;
+        spriteDiv.onclick = function () {
+          currentSpriteIndex = i;
+
+        };
+        spriteBar.appendChild(spriteDiv);
+
+
+      }
+    }
+
   </script>
 </body>
 </html>
+
